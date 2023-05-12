@@ -8,10 +8,10 @@ Locales["en_lang"] = {
     to = ":00~q~ to ~o~",
     hundred = ":00",
     hours = " is open from ~o~",
-    shortCash = "You don't have enough money",
+    shortCash = "Sorry, you don't have enough money",
     needJob = "To use this port you need job: ~o~",
-    boughtTicket = "You bought a ticket",
-    noTicket = "You don't have a ticket",
+    boughtTicket = "Thank you for your purchase!",
+    noTicket = "You need a ticket to board the ship",
     traveling = "Traveling to ",
     maxTickets = "You can only carry ~o~4~q~ tickets"
 }

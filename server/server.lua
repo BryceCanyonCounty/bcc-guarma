@@ -17,12 +17,12 @@ AddEventHandler('bcc-guarma:BuyTicket', function(data)
         if Character.money >= buyPrice then
             Character.removeCurrency(0, buyPrice)
             VORPInv.addItem(_source, 'boat_ticket', 1)
-            VORPcore.NotifyRightTip(_source, _U('boughtTicket'), 5000)
+            VORPcore.NotifyRightTip(_source, _U('boughtTicket'), 4000)
         else
-            VORPcore.NotifyRightTip(_source, _U('shortCash'), 5000)
+            VORPcore.NotifyRightTip(_source, _U('shortCash'), 4000)
         end
     else
-        VORPcore.NotifyRightTip(_source, _U('maxTickets'), 5000)
+        VORPcore.NotifyRightTip(_source, _U('maxTickets'), 4000)
     end
 end)
 
@@ -35,7 +35,7 @@ AddEventHandler('bcc-guarma:TakeTicket', function(data)
         VORPInv.subItem(_source, 'boat_ticket', 1)
         TriggerClientEvent('bcc-guarma:SendPlayer', _source, data.location)
     else
-        VORPcore.NotifyRightTip(_source, _U('noTicket'), 5000)
+        VORPcore.NotifyRightTip(_source, _U('noTicket'), 4000)
     end
 end)
 
