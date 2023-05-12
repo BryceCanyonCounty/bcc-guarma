@@ -1,16 +1,18 @@
 ---------------------------------- ENGLISH -------------------------------------------
 Locales["en_lang"] = {
 
-    portPrompt = "Menu",
-    subMenu = "Destination",
+    buyPrompt = "Buy Ticket: ~t6~$25",
+    travelPrompt = "Board Ship",
+    closedPrompt = "View Hours",
     closed = " ~o~: ~e~CLOSED",
     to = ":00~q~ to ~o~",
     hundred = ":00",
     hours = " is open from ~o~",
-    shortGold = "You don't have enough gold",
     shortCash = "You don't have enough money",
-    needJob = "To use this portal you need job: ~o~",
-    price = "Price: ",
-    boughtTicket = "You bought a ticket to ~o~",
-    traveling = "Traveling to "
+    needJob = "To use this port you need job: ~o~",
+    boughtTicket = "You bought a ticket",
+    noTicket = "You don't have a ticket",
+    traveling = "Traveling to ",
+    maxTickets = "You can only carry ~o~",
+    tickets = "~q~ tickets"
 }

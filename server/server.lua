@@ -1,36 +1,41 @@
 local VORPcore = {}
+local VORPInv = {}
 
-TriggerEvent("getCore", function(core)
+TriggerEvent('getCore', function(core)
     VORPcore = core
 end)
+VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 
-RegisterServerEvent('bcc-guarma:BuyPassage')
-AddEventHandler('bcc-guarma:BuyPassage', function(data)
+-- Check Ticket Qty on Player and Buy Ticket if Below Max
+RegisterServerEvent('bcc-guarma:BuyTicket')
+AddEventHandler('bcc-guarma:BuyTicket', function(data)
     local _source = source
     local Character = VORPcore.getUser(_source).getUsedCharacter
-    local location = data.location
-    local currencyType = data.currencyType
     local buyPrice = data.buyPrice
-
-    if currencyType == "cash" then
-        local money = Character.money
-        if money >= buyPrice then
+    local itemCount = VORPInv.getItemCount(_source, 'boat_ticket')
+    if itemCount < Config.maxTickets then
+        if Character.money >= buyPrice then
             Character.removeCurrency(0, buyPrice)
-            VORPcore.NotifyRightTip(_source, _U("boughtTicket") .. data.label, 5000)
-            TriggerClientEvent('bcc-guarma:SendPlayer', _source, location)
+            VORPInv.addItem(_source, 'boat_ticket', 1)
+            VORPcore.NotifyRightTip(_source, _U('boughtTicket'), 5000)
         else
-            VORPcore.NotifyRightTip(_source, _U("shortCash"), 5000)
+            VORPcore.NotifyRightTip(_source, _U('shortCash'), 5000)
         end
+    else
+        VORPcore.NotifyRightTip(_source, _U('maxTickets') .. Config.maxTickets .. _U('tickets'), 5000)
+    end
+end)
 
-    elseif currencyType == "gold" then
-        local gold = Character.gold
-        if gold >= buyPrice then
-            Character.removeCurrency(1, buyPrice)
-            VORPcore.NotifyRightTip(_source, _U("boughtTicket") .. data.label, 5000)
-            TriggerClientEvent('bcc-guarma:SendPlayer', _source, location)
-        else
-            VORPcore.NotifyRightTip(_source, _U("shortGold"), 5000)
-        end
+-- If Player has Ticket, Take it and Send to Destination
+RegisterServerEvent('bcc-guarma:TakeTicket')
+AddEventHandler('bcc-guarma:TakeTicket', function(data)
+    local _source = source
+    local ticket = VORPInv.getItem(_source, 'boat_ticket')
+    if ticket then
+        VORPInv.subItem(_source, 'boat_ticket', 1)
+        TriggerClientEvent('bcc-guarma:SendPlayer', _source, data.location)
+    else
+        VORPcore.NotifyRightTip(_source, _U('noTicket'), 5000)
     end
 end)
 

@@ -1,28 +1,24 @@
 local VORPcore = {}
 -- Prompts
-local OpenPorts
-local ClosePorts
-local PortPrompt1 = GetRandomIntInRange(0, 0xffffff)
-local PortPrompt2 = GetRandomIntInRange(0, 0xffffff)
+local BuyPrompt
+local TravelPrompt
+local ClosedPrompt
+local ActiveGroup = GetRandomIntInRange(0, 0xffffff)
+local ClosedGroup = GetRandomIntInRange(0, 0xffffff)
 -- Jobs
 local PlayerJob
 local JobName
 local JobGrade
--- Guarma
-local InMenu = false
-MenuData = {}
 
-TriggerEvent("getCore", function(core)
+TriggerEvent('getCore', function(core)
     VORPcore = core
-end)
-TriggerEvent("menuapi:getData", function(call)
-    MenuData = call
 end)
 
 -- Start Guarma
 CreateThread(function()
-    PortOpen()
-    PortClosed()
+    Buy()
+    Travel()
+    Closed()
 
     while true do
         Wait(0)
@@ -32,7 +28,7 @@ CreateThread(function()
         local dead = IsEntityDead(player)
         local hour = GetClockHours()
 
-        if InMenu == false and not dead then
+        if not dead then
             for portId, portConfig in pairs(Config.ports) do
                 if portConfig.portHours then
                     -- Using Port Hours - Port Closed
@@ -62,12 +58,12 @@ CreateThread(function()
 
                         if (distPort <= portConfig.distPort) then
                             sleep = false
-                            local portClosed = CreateVarString(10, 'LITERAL_STRING', portConfig.portName .. _U("closed"))
-                            PromptSetActiveGroupThisFrame(PortPrompt2, portClosed)
+                            local portClosed = CreateVarString(10, 'LITERAL_STRING', portConfig.portName .. _U('closed'))
+                            PromptSetActiveGroupThisFrame(ClosedGroup, portClosed)
 
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, ClosePorts) then -- UiPromptHasStandardModeCompleted
+                            if Citizen.InvokeNative(0xC92AC953F0A982AE, ClosedPrompt) then -- UiPromptHasStandardModeCompleted
                                 Wait(100)
-                                VORPcore.NotifyRightTip(portConfig.portName .. _U("hours") .. portConfig.portOpen .. _U("to") .. portConfig.portClose .. _U("hundred"), 4000)
+                                VORPcore.NotifyRightTip(portConfig.portName .. _U('hours') .. portConfig.portOpen .. _U('to') .. portConfig.portClose .. _U('hundred'), 4000)
                             end
                         end
                     elseif hour >= portConfig.portOpen then
@@ -88,13 +84,15 @@ CreateThread(function()
 
                             if (distPort <= portConfig.distPort) then
                                 sleep = false
-                                local portOpened = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
-                                PromptSetActiveGroupThisFrame(PortPrompt1, portOpened)
+                                local portActive = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
+                                PromptSetActiveGroupThisFrame(ActiveGroup, portActive)
 
-                                if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenPorts) then -- UiPromptHasStandardModeCompleted
-                                    MainMenu(portId)
-                                    DisplayRadar(false)
-                                    TaskStandStill(player, -1)
+                                local data = portConfig.tickets
+                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
+                                    TriggerServerEvent('bcc-guarma:BuyTicket', data)
+
+                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
+                                    TriggerServerEvent('bcc-guarma:TakeTicket', data)
                                 end
                             end
                         else
@@ -108,26 +106,42 @@ CreateThread(function()
 
                             if (distPort <= portConfig.distPort) then
                                 sleep = false
-                                local portOpened = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
-                                PromptSetActiveGroupThisFrame(PortPrompt1, portOpened)
+                                local portActive = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
+                                PromptSetActiveGroupThisFrame(ActiveGroup, portActive)
 
-                                if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenPorts) then -- UiPromptHasStandardModeCompleted
-                                    TriggerServerEvent("bcc-portals:GetPlayerJob")
+                                local data = portConfig.tickets
+                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
+                                    TriggerServerEvent('bcc-guarma:GetPlayerJob')
                                     Wait(200)
                                     if PlayerJob then
                                         if CheckJob(portConfig.allowedJobs, PlayerJob) then
                                             if tonumber(portConfig.jobGrade) <= tonumber(JobGrade) then
-                                                MainMenu(portId)
-                                                DisplayRadar(false)
-                                                TaskStandStill(player, -1)
+                                                TriggerServerEvent('bcc-guarma:BuyTicket', data)
                                             else
-                                                VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                                VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                             end
                                         else
-                                            VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                            VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                         end
                                     else
-                                        VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                        VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                    end
+
+                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
+                                    TriggerServerEvent('bcc-guarma:GetPlayerJob')
+                                    Wait(200)
+                                    if PlayerJob then
+                                        if CheckJob(portConfig.allowedJobs, PlayerJob) then
+                                            if tonumber(portConfig.jobGrade) <= tonumber(JobGrade) then
+                                                TriggerServerEvent('bcc-guarma:TakeTicket', data)
+                                            else
+                                                VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                            end
+                                        else
+                                            VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                        end
+                                    else
+                                        VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                     end
                                 end
                             end
@@ -151,13 +165,14 @@ CreateThread(function()
 
                         if (distPort <= portConfig.distPort) then
                             sleep = false
-                            local portOpened = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
-                            PromptSetActiveGroupThisFrame(PortPrompt1, portOpened)
+                            local portActive = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
+                            PromptSetActiveGroupThisFrame(ActiveGroup, portActive)
+                            local data = portConfig.tickets
+                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
+                                TriggerServerEvent('bcc-guarma:BuyTicket', data)
 
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenPorts) then -- UiPromptHasStandardModeCompleted
-                                MainMenu(portId)
-                                DisplayRadar(false)
-                                TaskStandStill(player, -1)
+                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
+                                TriggerServerEvent('bcc-guarma:TakeTicket', data)
                             end
                         end
                     else
@@ -171,26 +186,42 @@ CreateThread(function()
 
                         if (distPort <= portConfig.distPort) then
                             sleep = false
-                            local portOpened = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
-                            PromptSetActiveGroupThisFrame(PortPrompt1, portOpened)
+                            local portActive = CreateVarString(10, 'LITERAL_STRING', portConfig.promptName)
+                            PromptSetActiveGroupThisFrame(ActiveGroup, portActive)
 
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenPorts) then -- UiPromptHasStandardModeCompleted
-                                TriggerServerEvent("bcc-portals:GetPlayerJob")
+                            local data = portConfig.tickets
+                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
+                                TriggerServerEvent('bcc-guarma:GetPlayerJob')
                                 Wait(200)
                                 if PlayerJob then
                                     if CheckJob(portConfig.allowedJobs, PlayerJob) then
                                         if tonumber(portConfig.jobGrade) <= tonumber(JobGrade) then
-                                            MainMenu(portId)
-                                            DisplayRadar(false)
-                                            TaskStandStill(player, -1)
+                                            TriggerServerEvent('bcc-guarma:BuyTicket', data)
                                         else
-                                            VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                            VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                         end
                                     else
-                                        VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                        VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                     end
                                 else
-                                    VORPcore.NotifyRightTip(_U("needJob") .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                    VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                end
+
+                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
+                                TriggerServerEvent('bcc-guarma:GetPlayerJob')
+                                Wait(200)
+                                if PlayerJob then
+                                    if CheckJob(portConfig.allowedJobs, PlayerJob) then
+                                        if tonumber(portConfig.jobGrade) <= tonumber(JobGrade) then
+                                            TriggerServerEvent('bcc-guarma:TakeTicket', data)
+                                        else
+                                            VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                        end
+                                    else
+                                        VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
+                                    end
+                                else
+                                    VORPcore.NotifyRightTip(_U('needJob') .. JobName .. " " .. portConfig.jobGrade, 5000)
                                 end
                             end
                         end
@@ -203,50 +234,6 @@ CreateThread(function()
         end
     end
 end)
-
--- Guarma Menu
-function MainMenu(portId)
-    MenuData.CloseAll()
-    InMenu = true
-    local elements = {}
-
-    for ticket, ticketConfig in pairs(Config.ports[portId].tickets) do
-        elements[#elements + 1] = {
-            label = ticketConfig.label,
-            value = ticket,
-            desc = _U('price') .. ticketConfig.buyPrice .. " " .. ticketConfig.currencyType,
-            info = ticketConfig,
-        }
-    end
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-    {
-        title = Config.ports[portId].portName,
-        subtext = _U('subMenu'),
-        align = 'top-left',
-        elements = elements,
-        lastmenu = '',
-    },
-    function(data, menu)
-        if data.current == 'backup' then
-            _G[data.trigger](portId)
-        end
-        if data.current.value then
-            local ticketData = data.current.info
-            TriggerServerEvent('bcc-guarma:BuyPassage', ticketData, portId)
-
-            menu.close()
-            InMenu = false
-            ClearPedTasksImmediately(PlayerPedId())
-            DisplayRadar(true)
-        end
-    end,
-    function(data, menu)
-        menu.close()
-        InMenu = false
-        ClearPedTasksImmediately(PlayerPedId())
-        DisplayRadar(true)
-    end)
-end
 
 -- Send Player to Destination
 RegisterNetEvent('bcc-guarma:SendPlayer')
@@ -275,43 +262,55 @@ AddEventHandler('bcc-guarma:SendPlayer', function(location)
 end)
 
 -- Menu Prompts
-function PortOpen()
-    local str = _U('portPrompt')
-    OpenPorts = PromptRegisterBegin()
-    PromptSetControlAction(OpenPorts, Config.key)
+function Buy()
+    local str = _U('buyPrompt')
+    BuyPrompt = PromptRegisterBegin()
+    PromptSetControlAction(BuyPrompt, Config.buyKey)
     str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(OpenPorts, str)
-    PromptSetEnabled(OpenPorts, 1)
-    PromptSetVisible(OpenPorts, 1)
-    PromptSetStandardMode(OpenPorts, 1)
-    PromptSetGroup(OpenPorts, PortPrompt1)
-    Citizen.InvokeNative(0xC5F428EE08FA7F2C, OpenPorts, true)
-    PromptRegisterEnd(OpenPorts)
+    PromptSetText(BuyPrompt, str)
+    PromptSetEnabled(BuyPrompt, 1)
+    PromptSetVisible(BuyPrompt, 1)
+    PromptSetStandardMode(BuyPrompt, 1)
+    PromptSetGroup(BuyPrompt, ActiveGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, BuyPrompt, true)
+    PromptRegisterEnd(BuyPrompt)
 end
 
-function PortClosed()
-    local str = _U('portPrompt')
-    ClosePorts = PromptRegisterBegin()
-    PromptSetControlAction(ClosePorts, Config.key)
+function Travel()
+    local str = _U('travelPrompt')
+    TravelPrompt = PromptRegisterBegin()
+    PromptSetControlAction(TravelPrompt, Config.travelKey)
     str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(ClosePorts, str)
-    PromptSetEnabled(ClosePorts, 1)
-    PromptSetVisible(ClosePorts, 1)
-    PromptSetStandardMode(ClosePorts, 1)
-    PromptSetGroup(ClosePorts, PortPrompt2)
-    Citizen.InvokeNative(0xC5F428EE08FA7F2C, ClosePorts, true)
-    PromptRegisterEnd(ClosePorts)
+    PromptSetText(TravelPrompt, str)
+    PromptSetEnabled(TravelPrompt, 1)
+    PromptSetVisible(TravelPrompt, 1)
+    PromptSetStandardMode(TravelPrompt, 1)
+    PromptSetGroup(TravelPrompt, ActiveGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, TravelPrompt, true)
+    PromptRegisterEnd(TravelPrompt)
+end
+
+function Closed()
+    local str = _U('closedPrompt')
+    ClosedPrompt = PromptRegisterBegin()
+    PromptSetControlAction(ClosedPrompt, Config.buyKey)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(ClosedPrompt, str)
+    PromptSetEnabled(ClosedPrompt, 1)
+    PromptSetVisible(ClosedPrompt, 1)
+    PromptSetStandardMode(ClosedPrompt, 1)
+    PromptSetGroup(ClosedPrompt, ClosedGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, ClosedPrompt, true)
+    PromptRegisterEnd(ClosedPrompt)
 end
 
 -- Blips
 function AddBlip(portId)
     local portConfig = Config.ports[portId]
-    if portConfig.blipAllowed then
-        portConfig.BlipHandle = N_0x554d9d53f696d002(1664425300, portConfig.npc.x, portConfig.npc.y, portConfig.npc.z) -- BlipAddForCoords
-        SetBlipSprite(portConfig.BlipHandle, portConfig.blipSprite, 1)
-        SetBlipScale(portConfig.BlipHandle, 0.2)
-        Citizen.InvokeNative(0x9CB1A1623062F402, portConfig.BlipHandle, portConfig.blipName) -- SetBlipNameFromPlayerString
-    end
+    portConfig.BlipHandle = N_0x554d9d53f696d002(1664425300, portConfig.npc.x, portConfig.npc.y, portConfig.npc.z) -- BlipAddForCoords
+    SetBlipSprite(portConfig.BlipHandle, portConfig.blipSprite, 1)
+    SetBlipScale(portConfig.BlipHandle, 0.2)
+    Citizen.InvokeNative(0x9CB1A1623062F402, portConfig.BlipHandle, portConfig.blipName) -- SetBlipNameFromPlayerString
 end
 
 -- NPCs
@@ -357,12 +356,9 @@ AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
         return
     end
-    if InMenu == true then
-        MenuData.CloseAll()
-        DisplayRadar(true)
-    end
-    PromptDelete(OpenPorts)
-    PromptDelete(ClosePorts)
+    PromptDelete(BuyPrompt)
+    PromptDelete(TravelPrompt)
+    PromptDelete(ClosedPrompt)
     ClearPedTasksImmediately(PlayerPedId())
 
     for _, portConfig in pairs(Config.ports) do
