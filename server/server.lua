@@ -12,8 +12,8 @@ AddEventHandler('bcc-guarma:BuyTicket', function(data)
     local _source = source
     local Character = VORPcore.getUser(_source).getUsedCharacter
     local buyPrice = data.buyPrice
-    local itemCount = VORPInv.getItemCount(_source, 'boat_ticket')
-    if itemCount < Config.maxTickets then
+    local canCarry = VORPInv.canCarryItem(_source, 'boat_ticket', 1)
+    if canCarry then
         if Character.money >= buyPrice then
             Character.removeCurrency(0, buyPrice)
             VORPInv.addItem(_source, 'boat_ticket', 1)
@@ -22,7 +22,7 @@ AddEventHandler('bcc-guarma:BuyTicket', function(data)
             VORPcore.NotifyRightTip(_source, _U('shortCash'), 5000)
         end
     else
-        VORPcore.NotifyRightTip(_source, _U('maxTickets') .. Config.maxTickets .. _U('tickets'), 5000)
+        VORPcore.NotifyRightTip(_source, _U('maxTickets'), 5000)
     end
 end)
 

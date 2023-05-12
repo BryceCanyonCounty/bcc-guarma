@@ -245,6 +245,8 @@ AddEventHandler('bcc-guarma:SendPlayer', function(location)
     Wait(1000)
     Citizen.InvokeNative(0x1E5B70E53DB661E5, 0, 0, 0, _U('traveling') .. portConfig.portName, '', '') -- DisplayLoadingScreens
     Citizen.InvokeNative(0x203BEFFDBE12E96A, player, portConfig.player.x, portConfig.player.y, portConfig.player.z, portConfig.player.h) -- SetEntityCoordsAndHeading
+    FreezeEntityPosition(player, true)
+    TaskStandStill(player, -1)
     if destination == 'guarma' then
         Citizen.InvokeNative(0xA657EC9DBC6CC900, 1935063277) -- SetMinimapZone
         Citizen.InvokeNative(0xE8770EE02AEE45C2, 1) -- SetWorldWaterType (1 = Guarma)
@@ -256,6 +258,8 @@ AddEventHandler('bcc-guarma:SendPlayer', function(location)
     end
     Wait(Config.travelTime)
     ShutdownLoadingScreen()
+    FreezeEntityPosition(player, false)
+    ClearPedTasksImmediately(player)
     DoScreenFadeIn(1000)
     Wait(1000)
     SetCinematicModeActive(false)
@@ -356,10 +360,12 @@ AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
         return
     end
+    local player = PlayerPedId()
     PromptDelete(BuyPrompt)
     PromptDelete(TravelPrompt)
     PromptDelete(ClosedPrompt)
-    ClearPedTasksImmediately(PlayerPedId())
+    FreezeEntityPosition(player, false)
+    ClearPedTasksImmediately(player)
 
     for _, portConfig in pairs(Config.ports) do
         if portConfig.BlipHandle then

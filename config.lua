@@ -6,9 +6,6 @@ Config.buyKey = 0xC7B5340A --[Enter]
 
 Config.travelKey = 0x760A9C6F --[G]
 
--- Max Number of Tickets a Player Can Carry
-Config.maxTickets = 2 -- Default: 2 / Max allowed is 10
-
 -- Travel Time in Milliseconds Between Locations
 Config.travelTime = 15000 -- Default: 15000ms = 15 Seconds
 
