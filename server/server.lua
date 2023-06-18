@@ -7,8 +7,7 @@ end)
 VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 
 -- Check Ticket Qty on Player and Buy Ticket if Below Max
-RegisterServerEvent('bcc-guarma:BuyTicket')
-AddEventHandler('bcc-guarma:BuyTicket', function(data)
+RegisterNetEvent('bcc-guarma:BuyTicket', function(data)
     local _source = source
     local Character = VORPcore.getUser(_source).getUsedCharacter
     local buyPrice = data.buyPrice
@@ -27,8 +26,7 @@ AddEventHandler('bcc-guarma:BuyTicket', function(data)
 end)
 
 -- If Player has Ticket, Take it and Send to Destination
-RegisterServerEvent('bcc-guarma:TakeTicket')
-AddEventHandler('bcc-guarma:TakeTicket', function(data)
+RegisterNetEvent('bcc-guarma:TakeTicket', function(data)
     local _source = source
     local ticket = VORPInv.getItem(_source, 'boat_ticket')
     if ticket then
@@ -40,8 +38,7 @@ AddEventHandler('bcc-guarma:TakeTicket', function(data)
 end)
 
 -- Check Player Job and Job Grade
-RegisterServerEvent('bcc-guarma:GetPlayerJob')
-AddEventHandler('bcc-guarma:GetPlayerJob', function()
+RegisterNetEvent('bcc-guarma:GetPlayerJob', function()
     local _source = source
     if _source then
         local Character = VORPcore.getUser(_source).getUsedCharacter
