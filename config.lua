@@ -24,16 +24,17 @@ Config.shops = {
         blipOn = true,-- Turns Blip On / Off
         blipName = 'Saint Denis Port', -- Name of the Blip on the Map
         blipSprite = 2033397166, -- Default: 2033397166 (Paddleboat)
-        blipColorOpen = 'WHITE', -- Shop Open - Default: White - Blip Colors Shown Below
-        blipColorClosed = 'RED', -- Shop Closed - Default: Red
-        blipColorJob = 'YELLOW_ORANGE', -- Shop Job Locked - Default: Yellow
-        npc = {x = 2662.75, y = -1542.85, z = 44.92, h = 246.19}, -- NPC and Shop Blip Position
-        player = {x = 2664.32, y = -1544.26, z = 45.92, h = 269.93}, -- Player Landing Position
+        blipOpen = 'WHITE', -- Shop Open - Default: White - Blip Colors Shown Below
+        blipClosed = 'RED', -- Shop Closed - Default: Red
+        blipJob = 'YELLOW_ORANGE', -- Shop Job Locked - Default: Yellow
+        npc = vector3(2662.75, -1542.85, 44.92), -- NPC and Shop Blip Position
+        npcHeading =  246.19, -- NPC Heading
+        player = vector4(2664.32, -1544.26, 45.92, 269.93), -- Player Landing Position
         nDistance = 100.0, -- Distance from Shop for NPC to Spawn
         sDistance = 2.0, -- Distance from NPC to Show Prompts
         npcOn = true, -- Turns NPCs On / Off
         npcModel = 's_m_m_sdticketseller_01', -- Sets Model for NPCs
-        allowedJobs = {}, -- Empty, Everyone Can Use / Insert Job to limit access - ex. "police"
+        allowedJobs = {}, -- Empty, Everyone Can Use / Insert Job to limit access - ex. 'police'
         jobGrade = 0, -- Enter Minimum Rank / Job Grade to Access Shop
         shopHours = false, -- If You Want the Ports to Use Open and Closed Hours
         shopOpen = 7, -- Shop Open Time / 24 Hour Clock
@@ -46,11 +47,12 @@ Config.shops = {
         blipOn = true,
         blipName = 'Guarma Port',
         blipSprite = 2033397166,
-        blipColorOpen = 'WHITE',
-        blipColorClosed = 'RED',
-        blipColorJob = 'YELLOW_ORANGE',
-        npc = {x = 1266.51, y = -6852.67, z = 42.27, h = 236.72},
-        player = {x = 1268.36, y = -6853.66, z = 43.27, h = 243.09},
+        blipOpen = 'WHITE',
+        blipClosed = 'RED',
+        blipJob = 'YELLOW_ORANGE',
+        npc = vector3(1266.51, -6852.67, 42.27),
+        npcHeading =  236.72,
+        player = vector4(1268.36, -6853.66, 43.27, 243.09),
         nDistance = 100.0,
         sDistance = 2.0,
         npcOn = true,
