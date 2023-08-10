@@ -25,8 +25,5 @@ When you're ready to explore, head to the island and discover its many wonders. 
 - Add `boat_ticket` image to: `...\vorp_inventory\html\img`
 - Restart server
 
-#### Credits
-- vorp_stores
-
 #### GitHub
 - https://github.com/BryceCanyonCounty/bcc-guarma
