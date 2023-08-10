@@ -37,13 +37,23 @@ RegisterNetEvent('bcc-guarma:TakeTicket', function(data)
     end
 end)
 
--- Check Player Job and Job Grade
-RegisterNetEvent('bcc-guarma:GetPlayerJob', function()
+-- Check if Player has Required Job
+VORPcore.addRpcCallback('CheckPlayerJob', function(source, cb, shop)
     local src = source
-    if src then
-        local Character = VORPcore.getUser(src).getUsedCharacter
-        local CharacterJob = Character.job
-        local CharacterGrade = Character.jobGrade
-        TriggerClientEvent('bcc-guarma:SendPlayerJob', src, CharacterJob, CharacterGrade)
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local playerJob = Character.job
+    local jobGrade = Character.jobGrade
+
+    if playerJob then
+        for _, job in pairs(Config.shops[shop].allowedJobs) do
+            if playerJob == job then
+                if tonumber(jobGrade) >= tonumber(Config.shops[shop].jobGrade) then
+                    cb(true)
+                    return
+                end
+            end
+        end
     end
+    VORPcore.NotifyRightTip(src, _U('needJob'), 4000)
+    cb(false)
 end)
