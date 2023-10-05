@@ -104,7 +104,7 @@ CreateThread(function()
                                 PromptSetEnabled(TravelPrompt, 1)
 
                                 if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                    VORPcore.RpcCall('CheckPlayerJob', function(result)
+                                    VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
                                         if result then
                                             TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
                                         else
@@ -112,7 +112,7 @@ CreateThread(function()
                                         end
                                     end, shop)
                                 elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                    VORPcore.RpcCall('CheckPlayerJob', function(result)
+                                    VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
                                         if result then
                                             TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
                                         else
@@ -183,7 +183,7 @@ CreateThread(function()
                             PromptSetEnabled(TravelPrompt, 1)
 
                             if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                VORPcore.RpcCall('CheckPlayerJob', function(result)
+                                VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
                                     if result then
                                         TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
                                     else
@@ -191,7 +191,7 @@ CreateThread(function()
                                     end
                                 end, shop)
                             elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                VORPcore.RpcCall('CheckPlayerJob', function(result)
+                                VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
                                     if result then
                                         TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
                                     else
@@ -235,6 +235,21 @@ RegisterNetEvent('bcc-guarma:SendPlayer', function(location)
     Wait(1500)
     SetCinematicModeActive(false)
 end)
+
+-- Use to Reset Map and Water to Default if not Setting a Spawn Location in Guarma
+RegisterCommand('resetWorld', function()
+    ResetWorld()
+end)
+
+function ResetWorld()
+    DoScreenFadeOut(1000)
+    Wait(1000)
+    Citizen.InvokeNative(0x74E2261D2A66849A, 0) -- SetGuarmaWorldhorizonActive
+    Citizen.InvokeNative(0xA657EC9DBC6CC900, -1868977180) -- SetMinimapZone
+    Citizen.InvokeNative(0xE8770EE02AEE45C2, 0) -- SetWorldWaterType (0 = World)
+    DoScreenFadeIn(1000)
+    Wait(1000)
+end
 
 -- Menu Prompts
 function StartPrompts()
