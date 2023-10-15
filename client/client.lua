@@ -1,22 +1,19 @@
-local VORPcore = {}
+local ClientRPC = exports.vorp_core:ClientRpcCall()
+-- Prompts
 local BuyPrompt
 local TravelPrompt
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
-
-TriggerEvent('getCore', function(core)
-    VORPcore = core
-end)
 -- Start Guarma
 CreateThread(function()
     StartPrompts()
     while true do
         Wait(0)
-        local player = PlayerPedId()
-        local pCoords = GetEntityCoords(player)
+        local playerPed = PlayerPedId()
+        local pCoords = GetEntityCoords(playerPed)
         local sleep = true
         local hour = GetClockHours()
 
-        if not IsEntityDead(player) then
+        if not IsEntityDead(playerPed) then
             for shop, shopCfg in pairs(Config.shops) do
                 if shopCfg.shopHours then
                     -- Using Shop Hours - Shop Closed
@@ -104,21 +101,19 @@ CreateThread(function()
                                 PromptSetEnabled(TravelPrompt, 1)
 
                                 if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                    VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
-                                        if result then
-                                            TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
-                                        else
-                                            return
-                                        end
-                                    end, shop)
+                                    local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
+                                    if result then
+                                        TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
+                                    else
+                                        return
+                                    end
                                 elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                    VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
-                                        if result then
-                                            TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
-                                        else
-                                            return
-                                        end
-                                    end, shop)
+                                    local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
+                                    if result then
+                                        TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
+                                    else
+                                        return
+                                    end
                                 end
                             end
                         end
@@ -183,21 +178,19 @@ CreateThread(function()
                             PromptSetEnabled(TravelPrompt, 1)
 
                             if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
-                                    if result then
-                                        TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
-                                    else
-                                        return
-                                    end
-                                end, shop)
+                                local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
+                                if result then
+                                    TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
+                                else
+                                    return
+                                end
                             elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                VORPcore.RpcCall('bcc-guarma:CheckPlayerJob', function(result)
-                                    if result then
-                                        TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
-                                    else
-                                        return
-                                    end
-                                end, shop)
+                                local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
+                                if result then
+                                    TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
+                                else
+                                    return
+                                end
                             end
                         end
                     end
