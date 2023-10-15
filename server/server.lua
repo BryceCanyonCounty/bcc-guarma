@@ -1,8 +1,9 @@
 local VORPcore = {}
-
 TriggerEvent('getCore', function(core)
     VORPcore = core
 end)
+
+local ServerRPC = exports.vorp_core:ServerRpcCall()
 
 -- Check Ticket Qty on Player and Buy Ticket if Below Max
 RegisterNetEvent('bcc-guarma:BuyTicket', function(data)
@@ -36,7 +37,7 @@ RegisterNetEvent('bcc-guarma:TakeTicket', function(data)
 end)
 
 -- Check if Player has Required Job
-VORPcore.addRpcCallback('bcc-guarma:CheckPlayerJob', function(source, cb, shop)
+ServerRPC.Callback.Register('bcc-boats:CheckPlayerJob', function(source, cb, shop)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local playerJob = Character.job
