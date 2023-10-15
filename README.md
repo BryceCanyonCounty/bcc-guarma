@@ -14,6 +14,9 @@ When you're ready to explore, head to the island and discover its many wonders. 
 - Port access can be limited by job and jobgrade
 - Distance based NPC spawns
 
+#### Commands
+- `/resetWorld` If you die and respawn outside of Guarma it will reset the map and water to default settings.
+
 #### Dependencies
 - [vorp_core](https://github.com/VORPCORE/vorp-core-lua)
 - [vorp_inventory](https://github.com/VORPCORE/vorp_inventory-lua)
@@ -24,6 +27,15 @@ When you're ready to explore, head to the island and discover its many wonders. 
 - Run the included database file `guarma.sql`
 - Add `boat_ticket` image to: `...\vorp_inventory\html\img`
 - Restart server
+
+#### Tips
+- Add a respawn point for Guarma in vorp_core config `Hospitals` table. Example below.
+    ```lua
+    Guarma = {
+        name = "Guarma",
+        pos = vector4(1309.37, -6895.1, 48.85, 57.79)
+    },
+    ```
 
 #### GitHub
 - https://github.com/BryceCanyonCounty/bcc-guarma
