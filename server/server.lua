@@ -1,15 +1,9 @@
-local VORPcore = {}
-TriggerEvent('getCore', function(core)
-    VORPcore = core
-end)
+local VORPcore = exports.vorp_core:GetCore()
 
-local ServerRPC = exports.vorp_core:ServerRpcCall()
-
--- Check Ticket Qty on Player and Buy Ticket if Below Max
-RegisterNetEvent('bcc-guarma:BuyTicket', function(data)
+RegisterServerEvent('bcc-guarma:BuyTicket', function(travel)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
-    local buyPrice = data.buyPrice
+    local buyPrice = travel.buyPrice
     local canCarry = exports.vorp_inventory:canCarryItem(src, 'boat_ticket', 1)
     if canCarry then
         if Character.money >= buyPrice then
@@ -24,35 +18,33 @@ RegisterNetEvent('bcc-guarma:BuyTicket', function(data)
     end
 end)
 
--- If Player has Ticket, Take it and Send to Destination
-RegisterNetEvent('bcc-guarma:TakeTicket', function(data)
+VORPcore.Callback.Register('bcc-guarma:CheckTicket', function(source, cb)
     local src = source
     local ticket = exports.vorp_inventory:getItem(src, 'boat_ticket')
     if ticket then
         exports.vorp_inventory:subItem(src, 'boat_ticket', 1)
-        TriggerClientEvent('bcc-guarma:SendPlayer', src, data.location)
+        cb(true)
     else
         VORPcore.NotifyRightTip(src, _U('noTicket'), 4000)
+        cb(false)
     end
 end)
 
--- Check if Player has Required Job
-ServerRPC.Callback.Register('bcc-boats:CheckPlayerJob', function(source, cb, shop)
+VORPcore.Callback.Register('bcc-guarma:CheckPlayerJob', function(source, cb, port)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
-    local playerJob = Character.job
+    local charJob = Character.job
     local jobGrade = Character.jobGrade
-
-    if playerJob then
-        for _, job in pairs(Config.shops[shop].allowedJobs) do
-            if playerJob == job then
-                if tonumber(jobGrade) >= tonumber(Config.shops[shop].jobGrade) then
-                    cb(true)
-                    return
-                end
-            end
-        end
+    if not charJob then
+        cb(false)
+        return
     end
-    VORPcore.NotifyRightTip(src, _U('needJob'), 4000)
-    cb(false)
+    for _, job in pairs(Config.shops[port].shop.jobs) do
+        if (charJob == job.name) and (tonumber(jobGrade) >= tonumber(job.grade)) then
+            cb(true)
+            return
+        end
+        VORPcore.NotifyRightTip(src, _U('needJob'), 4000)
+        cb(false)
+    end
 end)

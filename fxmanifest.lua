@@ -18,3 +18,5 @@ shared_scripts {
     'locale.lua',
     'languages/*.lua'
 }
+
+version '1.1.0'
