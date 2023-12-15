@@ -9,62 +9,92 @@ Config.keys = {
 }
 -----------------------------------------------------
 
--- Travel Time in Seconds Between Locations
-Config.travelTime = 15 -- Default: 15 Seconds
------------------------------------------------------
-
--- Allow Blip on Map when Shop is Closed
-Config.blipOnClosed = true -- true = Show Closed Blip / false = Remove Blip
------------------------------------------------------
-
 Config.shops = {
     stdenis = {
-        shopName = 'Saint Denis Port', -- Name of Shop on Menu Header
-        promptName = 'Saint Denis to Guarma', -- Text Below the Prompt Button
-        blipOn = true,-- Turns Blip On / Off
-        blipName = 'Saint Denis Port', -- Name of the Blip on the Map
-        blipSprite = 2033397166, -- Default: 2033397166 (Paddleboat)
-        blipOpen = 'WHITE', -- Shop Open - Default: White - Blip Colors Shown Below
-        blipClosed = 'RED', -- Shop Closed - Default: Red
-        blipJob = 'YELLOW_ORANGE', -- Shop Job Locked - Default: Yellow
-        npcOn = true, -- Turns NPCs On / Off
-        npcModel = 's_m_m_sdticketseller_01', -- Sets Model for NPCs
-        npcPos = vector3(2662.75, -1542.85, 44.92), -- NPC and Shop Blip Position
-        npcHeading =  246.19, -- NPC Heading
-        playerPos = vector3(2664.32, -1544.26, 45.92), -- Player Landing Position
-        playerHeading = 269.93, -- Player Landing Heading
-        nDistance = 100.0, -- Distance from Shop for NPC to Spawn
-        sDistance = 2.0, -- Distance from NPC to Show Prompts
-        allowedJobs = {}, -- Empty, Everyone Can Use / Insert Job to limit access - ex. 'police'
-        jobGrade = 0, -- Enter Minimum Rank / Job Grade to Access Shop
-        shopHours = false, -- If You Want the Ports to Use Open and Closed Hours
-        shopOpen = 7, -- Shop Open Time / 24 Hour Clock
-        shopClose = 21, -- Shop Close Time / 24 Hour Clock
-        tickets = { location = 'guarma', buyPrice = 25 } -- DO NOT CHANGE LOCATION
+        shop = {
+            name     = 'Saint Denis Port',                  -- Used while Traveling and in Closed Shop Message
+            prompt   = 'Saint Denis to Guarma',             -- Text Below the Menu Prompt Button
+            distance = 2.0,                                 -- Distance Between Player and Shop to Show Menu Prompt
+            jobs     = {},                                  -- Insert Job to Limit Access - ex. jobs = {{name = 'police', grade = 1},{name = 'doctor', grade = 3}}
+            hours    = {
+                active = false,                             -- Shop uses Open and Closed Hours
+                open   = 7,                                 -- Shop Open Time / 24 Hour Clock
+                close  = 21                                 -- Shop Close Time / 24 Hour Clock
+            }
+        },
+        blip = {
+            name   = 'Saint Denis Port',                    -- Name of Blip on Map
+            sprite = 2033397166,                            -- Default: 2033397166
+            show   = {
+                open   = true,                              -- Show Blip On Map when Open
+                closed = true,                              -- Show Blip On Map when Closed
+            },
+            color  = {
+                open   = 'WHITE',                           -- Shop Open - Default: White - Blip Colors Shown Below
+                closed = 'RED',                             -- Shop Closed - Deafault: Red - Blip Colors Shown Below
+                job    = 'YELLOW_ORANGE'                    -- Shop Job Locked - Default: Yellow - Blip Colors Shown Below
+            }
+        },
+        npc = {
+            active   = true,                                -- Turns NPC On / Off
+            model    = 's_m_m_sdticketseller_01',           -- Model Used for NPC
+            coords   = vector3(2662.75, -1542.85, 44.92),   -- NPC and Shop Blip Positions
+            heading  = 246.19,                              -- NPC Heading
+            distance = 100                                  -- Distance Between Player and Shop for NPC to Spawn
+        },
+        player = {
+            coords  = vector3(2664.32, -1544.26, 45.92),    -- Player Teleport Position
+            heading = 269.93                                -- Player Heading
+        },
+        travel = {
+            location = 'guarma',                            -- DO NOT CHANGE LOCATION
+            buyPrice = 25,                                  -- Price for Ticket (Cash)
+            time = 15                                       -- Travel Time in Seconds
+            }
     },
+    -----------------------------------------------------
+
     guarma = {
-        shopName = 'Guarma Port',
-        promptName = 'Guarma to Saint Denis',
-        blipOn = true,
-        blipName = 'Guarma Port',
-        blipSprite = 2033397166,
-        blipOpen = 'WHITE',
-        blipClosed = 'RED',
-        blipJob = 'YELLOW_ORANGE',
-        npcOn = true,
-        npcModel = 's_m_m_sdticketseller_01',
-        npcPos = vector3(1266.51, -6852.67, 42.27),
-        npcHeading =  236.72,
-        playerPos = vector3(1268.36, -6853.66, 43.27),
-        playerHeading = 243.09,
-        nDistance = 100.0,
-        sDistance = 2.0,
-        allowedJobs = {},
-        jobGrade = 0,
-        shopHours = false,
-        shopOpen = 7,
-        shopClose = 21,
-        tickets = { location = 'stdenis', buyPrice = 25 }
+        shop = {
+            name     = 'Guarma Port',
+            prompt   = 'Guarma to Saint Denis',
+            distance = 2.0,
+            jobs     = {},
+            hours    = {
+                active = false,
+                open   = 7,
+                close  = 21
+            }
+        },
+        blip = {
+            name   = 'Guarma Port',
+            sprite = 2033397166,
+            show   = {
+                open   = true,                            -- Show Blip On Map when Open
+                closed = true,                            -- Show Blip On Map when Closed
+            },
+            color  = {
+                open   = 'WHITE',
+                closed = 'RED',
+                job    = 'YELLOW_ORANGE'
+            }
+        },
+        npc = {
+            active   = true,
+            model    = 's_m_m_sdticketseller_01',
+            coords   = vector3(1266.51, -6852.67, 42.27),
+            heading  = 236.72,
+            distance = 100
+        },
+        player = {
+            coords  = vector3(1268.36, -6853.66, 43.27),
+            heading = 243.09
+        },
+        travel = {
+            location = 'stdenis',                          -- DO NOT CHANGE LOCATION
+            buyPrice = 25,
+            time = 15
+        }
     }
 }
 -----------------------------------------------------
