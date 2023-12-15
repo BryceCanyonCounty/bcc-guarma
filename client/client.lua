@@ -14,105 +14,109 @@ CreateThread(function()
         local hour = GetClockHours()
 
         if not IsEntityDead(playerPed) then
-            for shop, shopCfg in pairs(Config.shops) do
-                if shopCfg.shopHours then
+            for port, portCfg in pairs(Config.shops) do
+                if portCfg.shop.hours.active then
                     -- Using Shop Hours - Shop Closed
-                    if hour >= shopCfg.shopClose or hour < shopCfg.shopOpen then
-                        if shopCfg.blipOn and Config.blipOnClosed then
-                            if not Config.shops[shop].Blip then
-                                AddBlip(shop)
+                    if hour >= portCfg.shop.hours.close or hour < portCfg.shop.hours.open then
+                        if portCfg.blip.show.closed then
+                            if not Config.shops[port].Blip then
+                                AddBlip(port)
                             end
-                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[shop].Blip, joaat(Config.BlipColors[shopCfg.blipClosed])) -- BlipAddModifier
+                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[port].Blip, joaat(Config.BlipColors[portCfg.blip.color.closed])) -- BlipAddModifier
                         else
-                            if Config.shops[shop].Blip then
-                                RemoveBlip(Config.shops[shop].Blip)
-                                Config.shops[shop].Blip = nil
+                            if Config.shops[port].Blip then
+                                RemoveBlip(Config.shops[port].Blip)
+                                Config.shops[port].Blip = nil
                             end
                         end
-                        if shopCfg.NPC then
-                            DeleteEntity(shopCfg.NPC)
-                            shopCfg.NPC = nil
+                        if portCfg.NPC then
+                            DeleteEntity(portCfg.NPC)
+                            portCfg.NPC = nil
                         end
-                        local sDist = #(pCoords - shopCfg.npcPos)
-                        if sDist <= shopCfg.sDistance then
+                        local distance = #(pCoords - portCfg.npc.coords)
+                        if distance <= portCfg.shop.distance then
                             sleep = false
-                            local shopClosed = CreateVarString(10, 'LITERAL_STRING', shopCfg.shopName .. _U('hours') .. shopCfg.shopOpen .. _U('to') .. shopCfg.shopClose .. _U('hundred'))
+                            local shopClosed = CreateVarString(10, 'LITERAL_STRING', portCfg.shop.name .. _U('hours') .. portCfg.shop.hours.open .. _U('to') .. portCfg.shop.hours.close .. _U('hundred'))
                             PromptSetActiveGroupThisFrame(PromptGroup, shopClosed)
-                            PromptSetEnabled(BuyPrompt, 0)
-                            PromptSetEnabled(TravelPrompt, 0)
+                            PromptSetEnabled(BuyPrompt, false)
+                            PromptSetEnabled(TravelPrompt, false)
                         end
-                    elseif hour >= shopCfg.shopOpen then
+                    elseif hour >= portCfg.shop.hours.open then
                         -- Using Shop Hours - Shop Open
-                        if shopCfg.blipOn and not Config.shops[shop].Blip then
-                            AddBlip(shop)
-                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[shop].Blip, joaat(Config.BlipColors[shopCfg.blipOpen])) -- BlipAddModifier
+                        if portCfg.blip.show.open then
+                            if not Config.shops[port].Blip then
+                                AddBlip(port)
+                            end
+                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[port].Blip, joaat(Config.BlipColors[portCfg.blip.color.open])) -- BlipAddModifier
                         end
-                        if not next(shopCfg.allowedJobs) then
-                            local sDist = #(pCoords - shopCfg.npcPos)
-                            if shopCfg.npcOn then
-                                if sDist <= shopCfg.nDistance then
-                                    if not shopCfg.NPC then
-                                        AddNPC(shop)
+                        if not next(portCfg.shop.jobs) then
+                            local distance = #(pCoords - portCfg.npc.coords)
+                            if portCfg.npc.active then
+                                if distance <= portCfg.npc.distance then
+                                    if not portCfg.NPC then
+                                        AddNPC(port)
                                     end
                                 else
-                                    if shopCfg.NPC then
-                                        DeleteEntity(shopCfg.NPC)
-                                        shopCfg.NPC = nil
+                                    if portCfg.NPC then
+                                        DeleteEntity(portCfg.NPC)
+                                        portCfg.NPC = nil
                                     end
                                 end
                             end
-                            if sDist <= shopCfg.sDistance then
+                            if distance <= portCfg.shop.distance then
                                 sleep = false
-                                local shopOpen = CreateVarString(10, 'LITERAL_STRING', shopCfg.promptName)
+                                local shopOpen = CreateVarString(10, 'LITERAL_STRING', portCfg.shop.prompt)
                                 PromptSetActiveGroupThisFrame(PromptGroup, shopOpen)
-                                PromptSetEnabled(BuyPrompt, 1)
-                                PromptSetEnabled(TravelPrompt, 1)
+                                PromptSetEnabled(BuyPrompt, true)
+                                PromptSetEnabled(TravelPrompt, true)
 
-                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                    TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
+                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
+                                    TriggerServerEvent('bcc-guarma:BuyTicket', portCfg.travel)
 
-                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                    TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
+                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- PromptHasStandardModeCompleted
+                                    local canTravel = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckTicket')
+                                    if canTravel then
+                                        SendPlayer(portCfg.travel.location)
+                                    end
                                 end
                             end
                         else
                             -- Using Shop Hours - Shop Open - Job Locked
-                            if Config.shops[shop].Blip then
-                                Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[shop].Blip, joaat(Config.BlipColors[shopCfg.blipJob])) -- BlipAddModifier
+                            if Config.shops[port].Blip then
+                                Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[port].Blip, joaat(Config.BlipColors[portCfg.blip.color.job])) -- BlipAddModifier
                             end
-                            local sDist = #(pCoords - shopCfg.npcPos)
-                            if shopCfg.npcOn then
-                                if sDist <= shopCfg.nDistance then
-                                    if not shopCfg.NPC then
-                                        AddNPC(shop)
+                            local distance = #(pCoords - portCfg.npc.coords)
+                            if portCfg.npc.active then
+                                if distance <= portCfg.npc.distance then
+                                    if not portCfg.NPC then
+                                        AddNPC(port)
                                     end
                                 else
-                                    if shopCfg.NPC then
-                                        DeleteEntity(shopCfg.NPC)
-                                        shopCfg.NPC = nil
+                                    if portCfg.NPC then
+                                        DeleteEntity(portCfg.NPC)
+                                        portCfg.NPC = nil
                                     end
                                 end
                             end
-                            if sDist <= shopCfg.sDistance then
+                            if distance <= portCfg.shop.distance then
                                 sleep = false
-                                local shopOpen = CreateVarString(10, 'LITERAL_STRING', shopCfg.promptName)
+                                local shopOpen = CreateVarString(10, 'LITERAL_STRING', portCfg.shop.prompt)
                                 PromptSetActiveGroupThisFrame(PromptGroup, shopOpen)
-                                PromptSetEnabled(BuyPrompt, 1)
-                                PromptSetEnabled(TravelPrompt, 1)
+                                PromptSetEnabled(BuyPrompt, true)
+                                PromptSetEnabled(TravelPrompt, true)
 
-                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                    local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
-                                    if result then
-                                        TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
-                                    else
-                                        return
+                                if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
+                                    local hasJob = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', port)
+                                    if hasJob then
+                                        TriggerServerEvent('bcc-guarma:BuyTicket', portCfg.travel)
                                     end
-                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                    local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
-                                    if result then
-                                        TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
-                                    else
-                                        return
+                                elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- PromptHasStandardModeCompleted
+                                    local hasJob = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', port)
+                                    if hasJob then
+                                        local canTravel = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckTicket')
+                                        if canTravel then
+                                            SendPlayer(portCfg.travel.location)
+                                        end
                                     end
                                 end
                             end
@@ -120,76 +124,80 @@ CreateThread(function()
                     end
                 else
                     -- Not Using Shop Hours - Shop Always Open
-                    if shopCfg.blipOn and not Config.shops[shop].Blip then
-                        AddBlip(shop)
-                        Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[shop].Blip, joaat(Config.BlipColors[shopCfg.blipOpen])) -- BlipAddModifier
+                    if portCfg.blip.show.open then
+                        if not Config.shops[port].Blip then
+                            AddBlip(port)
+                        end
+                        Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[port].Blip, joaat(Config.BlipColors[portCfg.blip.color.open])) -- BlipAddModifier
                     end
-                    if not next(shopCfg.allowedJobs) then
-                        local sDist = #(pCoords - shopCfg.npcPos)
-                        if shopCfg.npcOn then
-                            if sDist <= shopCfg.nDistance then
-                                if not shopCfg.NPC then
-                                    AddNPC(shop)
+                    if not next(portCfg.shop.jobs) then
+                        local distance = #(pCoords - portCfg.npc.coords)
+                        if portCfg.npc.active then
+                            if distance <= portCfg.npc.distance then
+                                if not portCfg.NPC then
+                                    AddNPC(port)
                                 end
                             else
-                                if shopCfg.NPC then
-                                    DeleteEntity(shopCfg.NPC)
-                                    shopCfg.NPC = nil
+                                if portCfg.NPC then
+                                    DeleteEntity(portCfg.NPC)
+                                    portCfg.NPC = nil
                                 end
                             end
                         end
-                        if sDist <= shopCfg.sDistance then
+                        if distance <= portCfg.shop.distance then
                             sleep = false
-                            local shopOpen = CreateVarString(10, 'LITERAL_STRING', shopCfg.promptName)
+                            local shopOpen = CreateVarString(10, 'LITERAL_STRING', portCfg.shop.prompt)
                             PromptSetActiveGroupThisFrame(PromptGroup, shopOpen)
-                            PromptSetEnabled(BuyPrompt, 1)
-                            PromptSetEnabled(TravelPrompt, 1)
+                            PromptSetEnabled(BuyPrompt, true)
+                            PromptSetEnabled(TravelPrompt, true)
 
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
+                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
+                                TriggerServerEvent('bcc-guarma:BuyTicket', portCfg.travel)
 
-                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
+                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- PromptHasStandardModeCompleted
+                                local canTravel = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckTicket')
+                                    if canTravel then
+                                        SendPlayer(portCfg.travel.location)
+                                    end
                             end
                         end
                     else
                         -- Not Using Shop Hours - Shop Always Open - Job Locked
-                        if Config.shops[shop].Blip then
-                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[shop].Blip, joaat(Config.BlipColors[shopCfg.blipJob])) -- BlipAddModifier
+                        if Config.shops[port].Blip then
+                            Citizen.InvokeNative(0x662D364ABF16DE2F, Config.shops[port].Blip, joaat(Config.BlipColors[portCfg.blip.color.job])) -- BlipAddModifier
                         end
-                        local sDist = #(pCoords - shopCfg.npcPos)
-                        if shopCfg.npcOn then
-                            if sDist <= shopCfg.nDistance then
-                                if not shopCfg.NPC then
-                                    AddNPC(shop)
+                        local distance = #(pCoords - portCfg.npc.coords)
+                        if portCfg.npc.active then
+                            if distance <= portCfg.npc.distance then
+                                if not portCfg.NPC then
+                                    AddNPC(port)
                                 end
                             else
-                                if shopCfg.NPC then
-                                    DeleteEntity(shopCfg.NPC)
-                                    shopCfg.NPC = nil
+                                if portCfg.NPC then
+                                    DeleteEntity(portCfg.NPC)
+                                    portCfg.NPC = nil
                                 end
                             end
                         end
-                        if sDist <= shopCfg.sDistance then
+                        if distance <= portCfg.shop.distance then
                             sleep = false
-                            local shopOpen = CreateVarString(10, 'LITERAL_STRING', shopCfg.promptName)
+                            local shopOpen = CreateVarString(10, 'LITERAL_STRING', portCfg.shop.prompt)
                             PromptSetActiveGroupThisFrame(PromptGroup, shopOpen)
-                            PromptSetEnabled(BuyPrompt, 1)
-                            PromptSetEnabled(TravelPrompt, 1)
+                            PromptSetEnabled(BuyPrompt, true)
+                            PromptSetEnabled(TravelPrompt, true)
 
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- UiPromptHasStandardModeCompleted
-                                local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
-                                if result then
-                                    TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.tickets)
-                                else
-                                    return
+                            if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
+                                local hasJob = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', port)
+                                if hasJob then
+                                    TriggerServerEvent('bcc-guarma:BuyTicket', portCfg.travel)
                                 end
-                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- UiPromptHasStandardModeCompleted
-                                local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', shop)
-                                if result then
-                                    TriggerServerEvent('bcc-guarma:TakeTicket', shopCfg.tickets)
-                                else
-                                    return
+                            elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- PromptHasStandardModeCompleted
+                                local hasJob = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckPlayerJob', port)
+                                if hasJob then
+                                    local canTravel = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckTicket')
+                                    if canTravel then
+                                        SendPlayer(portCfg.travel.location)
+                                    end
                                 end
                             end
                         end
@@ -204,22 +212,22 @@ CreateThread(function()
 end)
 
 -- Send Player to Destination
-RegisterNetEvent('bcc-guarma:SendPlayer', function(location)
-    local shopCfg = Config.shops[location]
+function SendPlayer(location)
+    local portCfg = Config.shops[location]
     DoScreenFadeOut(1500)
     Wait(1500)
-    Citizen.InvokeNative(0x1E5B70E53DB661E5, 0, 0, 0, _U('traveling') .. shopCfg.shopName, '', '') -- DisplayLoadingScreens
-    Citizen.InvokeNative(0x203BEFFDBE12E96A, PlayerPedId(), shopCfg.playerPos.x, shopCfg.playerPos.y, shopCfg.playerPos.z, shopCfg.playerHeading) -- SetEntityCoordsAndHeading
+    Citizen.InvokeNative(0x1E5B70E53DB661E5, 0, 0, 0, _U('traveling') .. portCfg.shop.name, '', '') -- DisplayLoadingScreens
+    Citizen.InvokeNative(0x203BEFFDBE12E96A, PlayerPedId(), portCfg.player.coords, portCfg.player.heading) -- SetEntityCoordsAndHeading
     if location == 'guarma' then
-        Citizen.InvokeNative(0x74E2261D2A66849A, 1) -- SetGuarmaWorldhorizonActive
+        Citizen.InvokeNative(0x74E2261D2A66849A, true) -- SetGuarmaWorldhorizonActive
         Citizen.InvokeNative(0xA657EC9DBC6CC900, 1935063277) -- SetMinimapZone
         Citizen.InvokeNative(0xE8770EE02AEE45C2, 1) -- SetWorldWaterType (1 = Guarma)
-    elseif location == 'stdenis' then
-        Citizen.InvokeNative(0x74E2261D2A66849A, 0) -- SetGuarmaWorldhorizonActive
+    else
+        Citizen.InvokeNative(0x74E2261D2A66849A, false) -- SetGuarmaWorldhorizonActive
         Citizen.InvokeNative(0xA657EC9DBC6CC900, -1868977180) -- SetMinimapZone
         Citizen.InvokeNative(0xE8770EE02AEE45C2, 0) -- SetWorldWaterType (0 = World)
     end
-    Wait(Config.travelTime * 1000)
+    Wait(portCfg.travel.time * 1000)
     ShutdownLoadingScreen()
     while GetIsLoadingScreenActive() do
         Wait(1000)
@@ -227,31 +235,26 @@ RegisterNetEvent('bcc-guarma:SendPlayer', function(location)
     DoScreenFadeIn(1500)
     Wait(1500)
     SetCinematicModeActive(false)
-end)
+end
 
--- Use to Reset Map and Water to Default if not Setting a Spawn Location in Guarma
+-- On Player Death: Reset Map and Water to Default if not Setting a Spawn Location in Guarma
 RegisterCommand('resetWorld', function()
-    ResetWorld()
-end)
-
-function ResetWorld()
     DoScreenFadeOut(1000)
     Wait(1000)
-    Citizen.InvokeNative(0x74E2261D2A66849A, 0) -- SetGuarmaWorldhorizonActive
+    Citizen.InvokeNative(0x74E2261D2A66849A, false) -- SetGuarmaWorldhorizonActive
     Citizen.InvokeNative(0xA657EC9DBC6CC900, -1868977180) -- SetMinimapZone
     Citizen.InvokeNative(0xE8770EE02AEE45C2, 0) -- SetWorldWaterType (0 = World)
     DoScreenFadeIn(1000)
     Wait(1000)
-end
+end)
 
--- Menu Prompts
 function StartPrompts()
     local buyStr = CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt'))
     BuyPrompt = PromptRegisterBegin()
     PromptSetControlAction(BuyPrompt, Config.keys.buy)
     PromptSetText(BuyPrompt, buyStr)
-    PromptSetVisible(BuyPrompt, 1)
-    PromptSetStandardMode(BuyPrompt, 1)
+    PromptSetVisible(BuyPrompt, true)
+    PromptSetStandardMode(BuyPrompt, true)
     PromptSetGroup(BuyPrompt, PromptGroup)
     PromptRegisterEnd(BuyPrompt)
 
@@ -259,38 +262,36 @@ function StartPrompts()
     TravelPrompt = PromptRegisterBegin()
     PromptSetControlAction(TravelPrompt, Config.keys.travel)
     PromptSetText(TravelPrompt, travelStr)
-    PromptSetVisible(TravelPrompt, 1)
-    PromptSetStandardMode(TravelPrompt, 1)
+    PromptSetVisible(TravelPrompt, true)
+    PromptSetStandardMode(TravelPrompt, true)
     PromptSetGroup(TravelPrompt, PromptGroup)
     PromptRegisterEnd(TravelPrompt)
 end
 
--- Blips
-function AddBlip(shop)
-    local shopCfg = Config.shops[shop]
-    shopCfg.Blip = Citizen.InvokeNative(0x554d9d53f696d002, 1664425300, shopCfg.npcPos) -- BlipAddForCoords
-    SetBlipSprite(shopCfg.Blip, shopCfg.blipSprite, true)
-    SetBlipScale(shopCfg.Blip, 0.2)
-    Citizen.InvokeNative(0x9CB1A1623062F402, shopCfg.Blip, shopCfg.blipName) -- SetBlipNameFromPlayerString
+function AddBlip(port)
+    local portCfg = Config.shops[port]
+    portCfg.Blip = Citizen.InvokeNative(0x554d9d53f696d002, 1664425300, portCfg.npc.coords) -- BlipAddForCoords
+    SetBlipSprite(portCfg.Blip, portCfg.blip.sprite, true)
+    SetBlipScale(portCfg.Blip, 0.2)
+    Citizen.InvokeNative(0x9CB1A1623062F402, portCfg.Blip, portCfg.blip.name) -- SetBlipNameFromPlayerString
 end
 
--- NPCs
-function AddNPC(shop)
-    local shopCfg = Config.shops[shop]
-    LoadModel(shopCfg.npcModel)
-    shopCfg.NPC = CreatePed(shopCfg.npcModel, shopCfg.npcPos.x, shopCfg.npcPos.y, shopCfg.npcPos.z, shopCfg.npcHeading, false, false, false, false)
-    Citizen.InvokeNative(0x283978A15512B2FE, shopCfg.NPC, true) -- SetRandomOutfitVariation
-    SetEntityCanBeDamaged(shopCfg.NPC, false)
-    SetEntityInvincible(shopCfg.NPC, true)
+function AddNPC(port)
+    local portCfg = Config.shops[port]
+    LoadModel(portCfg.npc.model)
+    portCfg.NPC = CreatePed(portCfg.npc.model, portCfg.npc.coords, portCfg.npc.heading, false, false, false, false)
+    Citizen.InvokeNative(0x283978A15512B2FE, portCfg.NPC, true) -- SetRandomOutfitVariation
+    SetEntityCanBeDamaged(portCfg.NPC, false)
+    SetEntityInvincible(portCfg.NPC, true)
     Wait(500)
-    FreezeEntityPosition(shopCfg.NPC, true)
-    SetBlockingOfNonTemporaryEvents(shopCfg.NPC, true)
+    FreezeEntityPosition(portCfg.NPC, true)
+    SetBlockingOfNonTemporaryEvents(portCfg.NPC, true)
 end
 
-function LoadModel(npcModel)
-    local model = joaat(npcModel)
-    RequestModel(model)
-    while not HasModelLoaded(model) do
+function LoadModel(model)
+    local hash = joaat(model)
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
         Wait(10)
     end
 end
@@ -301,14 +302,14 @@ AddEventHandler('onResourceStop', function(resourceName)
     end
     ClearPedTasksImmediately(PlayerPedId())
 
-    for _, shopCfg in pairs(Config.shops) do
-        if shopCfg.Blip then
-            RemoveBlip(shopCfg.Blip)
-            shopCfg.Blip = nil
+    for _, portCfg in pairs(Config.shops) do
+        if portCfg.Blip then
+            RemoveBlip(portCfg.Blip)
+            portCfg.Blip = nil
         end
-        if shopCfg.NPC then
-            DeleteEntity(shopCfg.NPC)
-            shopCfg.NPC = nil
+        if portCfg.NPC then
+            DeleteEntity(portCfg.NPC)
+            portCfg.NPC = nil
         end
     end
 end)
