@@ -2,8 +2,6 @@
 Locales["en_lang"] = {
     buyPrompt = "Buy Ticket: ~t6~$25",
     travelPrompt = "Board Ship",
-    closedPrompt = "View Hours",
-    closed = " ~o~: ~e~CLOSED",
     to = ":00~q~ to ~o~",
     hundred = ":00",
     hours = " is open from ~o~",
