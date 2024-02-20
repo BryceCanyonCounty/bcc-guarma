@@ -14,9 +14,6 @@ When you're ready to explore, head to the island and discover its many wonders. 
 - Port access can be limited by job and jobgrade
 - Distance based NPC spawns
 
-#### Commands
-- `/resetWorld` If you die and respawn outside of Guarma it will reset the map and water to default settings.
-
 #### Dependencies
 - [vorp_core](https://github.com/VORPCORE/vorp-core-lua)
 - [vorp_inventory](https://github.com/VORPCORE/vorp_inventory-lua)
