@@ -15,7 +15,11 @@ Config.shops = {
             name     = 'Saint Denis Port',                  -- Used while Traveling and in Closed Shop Message
             prompt   = 'Saint Denis to Guarma',             -- Text Below the Menu Prompt Button
             distance = 2.0,                                 -- Distance Between Player and Shop to Show Menu Prompt
-            jobs     = {},                                  -- Insert Job to Limit Access - ex. jobs = {{name = 'police', grade = 1},{name = 'doctor', grade = 3}}
+            jobsEnabled = false,                            -- Allow Shop Access to Specified Jobs Only
+            jobs     = {                                    -- Insert Job to Limit Access - ex. jobs = {{name = 'police', grade = 1},{name = 'doctor', grade = 3}}
+                {name = 'police', grade = 1},
+                {name = 'doctor', grade = 3}
+            },
             hours    = {
                 active = false,                             -- Shop uses Open and Closed Hours
                 open   = 7,                                 -- Shop Open Time / 24 Hour Clock
@@ -59,7 +63,11 @@ Config.shops = {
             name     = 'Guarma Port',
             prompt   = 'Guarma to Saint Denis',
             distance = 2.0,
-            jobs     = {},
+            jobsEnabled = false,
+            jobs     = {
+                {name = 'police', grade = 1},
+                {name = 'doctor', grade = 3}
+            },
             hours    = {
                 active = false,
                 open   = 7,
