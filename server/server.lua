@@ -30,7 +30,7 @@ VORPcore.Callback.Register('bcc-guarma:CheckTicket', function(source, cb)
     cb(true)
 end)
 
-VORPcore.Callback.Register('bcc-guarma:CheckJob', function(source, cb, port)
+VORPcore.Callback.Register('bcc-guarma:CheckJob', function(source, cb, shop)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local charJob = Character.job
@@ -40,7 +40,7 @@ VORPcore.Callback.Register('bcc-guarma:CheckJob', function(source, cb, port)
         return
     end
     local hasJob = false
-    hasJob = CheckPlayerJob(charJob, jobGrade, port)
+    hasJob = CheckPlayerJob(charJob, jobGrade, shop)
     if not hasJob then
         VORPcore.NotifyRightTip(src, _U('needJob'), 4000)
         cb(false)
@@ -49,8 +49,8 @@ VORPcore.Callback.Register('bcc-guarma:CheckJob', function(source, cb, port)
     cb(true)
 end)
 
-function CheckPlayerJob(charJob, jobGrade, port)
-    for _, job in pairs(Config.shops[port].shop.jobs) do
+function CheckPlayerJob(charJob, jobGrade, shop)
+    for _, job in pairs(Config.shops[shop].shop.jobs) do
         if (charJob == job.name) and (tonumber(jobGrade) >= tonumber(job.grade)) then
             return true
         end
