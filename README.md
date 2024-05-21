@@ -17,8 +17,10 @@ When you're ready to explore, head to the island and discover its many wonders. 
 #### Dependencies
 - [vorp_core](https://github.com/VORPCORE/vorp-core-lua)
 - [vorp_inventory](https://github.com/VORPCORE/vorp_inventory-lua)
+- [bcc-utils](https://github.com/BryceCanyonCounty/bcc-utils)
 
 #### Installation
+- Make sure dependencies are installed/updated and ensured before this script
 - Add `bcc-guarma` folder to your resources folder
 - Add `ensure bcc-guarma` to your `resources.cfg`
 - Run the included database file `guarma.sql`

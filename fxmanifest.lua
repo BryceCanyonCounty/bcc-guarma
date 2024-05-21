@@ -3,13 +3,14 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 game 'rdr3'
 lua54 'yes'
-
+author 'BCC @Apollyon'
 
 client_scripts {
     'client/client.lua'
 }
 
 server_scripts {
+    'server/versioncheck.lua',
     'server/server.lua'
 }
 
@@ -19,4 +20,4 @@ shared_scripts {
     'languages/*.lua'
 }
 
-version '1.1.1'
+version '1.1.2'
