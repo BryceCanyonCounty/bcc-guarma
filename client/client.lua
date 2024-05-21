@@ -33,9 +33,7 @@ CreateThread(function()
 
             -- Shop Open
             else
-                if shopCfg.blip.show then
-                    ManageBlip(shop, false)
-                end
+                ManageBlip(shop, false)
                 if distance <= shopCfg.npc.distance then
                     if shopCfg.npc.active then
                         AddNPC(shop)
