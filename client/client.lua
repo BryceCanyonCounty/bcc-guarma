@@ -21,9 +21,7 @@ CreateThread(function()
 
             -- Shop Closed
             if (shopCfg.shop.hours.active and hour >= shopCfg.shop.hours.close) or (shopCfg.shop.hours.active and hour < shopCfg.shop.hours.open) then
-                if shopCfg.blip.show then
-                    ManageBlip(shop, true)
-                end
+                ManageBlip(shop, true)
                 RemoveNPC(shop)
                 if distance <= shopCfg.shop.distance then
                     sleep = 0
