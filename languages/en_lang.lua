@@ -1,6 +1,6 @@
 ---------------------------------- ENGLISH -------------------------------------------
 Locales["en_lang"] = {
-    buyPrompt = "Buy Ticket: ~t6~$25",
+    buyPrompt = "Buy Ticket: ~t6~$",
     travelPrompt = "Board Ship",
     to = ":00~q~ to ~o~",
     hundred = ":00",

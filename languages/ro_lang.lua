@@ -1,5 +1,5 @@
 Locales["ro_lang"] = {
-    buyPrompt = "Cumpara Bilet: ~t6~$25",
+    buyPrompt = "Cumpara Bilet: ~t6~$",
     travelPrompt = "Imbarca-te pe Nava",
     to = ":00~q~ pâna la ~o~",
     hundred = ":00",
