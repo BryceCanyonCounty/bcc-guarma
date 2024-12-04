@@ -1,4 +1,4 @@
-local ClientRPC = exports.vorp_core:ClientRpcCall()
+local Core = exports.vorp_core:GetCore()
 
 local BuyPrompt
 local TravelPrompt
@@ -28,6 +28,7 @@ CreateThread(function()
                     PromptSetActiveGroupThisFrame(PromptGroup, CreateVarString(10, 'LITERAL_STRING', shopCfg.shop.name .. _U('hours') ..
                     shopCfg.shop.hours.open .. _U('to') .. shopCfg.shop.hours.close .. _U('hundred')))
                     PromptSetEnabled(BuyPrompt, false)
+                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. tonumber(shopCfg.travel.buyPrice)))
                     PromptSetEnabled(TravelPrompt, false)
                 end
 
@@ -45,6 +46,7 @@ CreateThread(function()
                     sleep = 0
                     PromptSetActiveGroupThisFrame(PromptGroup, CreateVarString(10, 'LITERAL_STRING', shopCfg.shop.prompt))
                     PromptSetEnabled(BuyPrompt, true)
+                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. tonumber(shopCfg.travel.buyPrice)))
                     PromptSetEnabled(TravelPrompt, true)
 
                     if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
@@ -113,14 +115,14 @@ end
 
 function CheckPlayerJob(shop)
     HasJob = false
-    local result = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckJob', shop)
+    local result = Core.Callback.TriggerAwait('bcc-guarma:CheckJob', shop)
     if result then
         HasJob = true
     end
 end
 
 function CheckPlayerTicket(shop)
-    local canTravel = ClientRPC.Callback.TriggerAwait('bcc-guarma:CheckTicket')
+    local canTravel = Core.Callback.TriggerAwait('bcc-guarma:CheckTicket')
     if canTravel then
         SendPlayer(Config.shops[shop].travel.location)
     end
@@ -147,7 +149,7 @@ end
 function ManageBlip(shop, closed)
     local shopCfg = Config.shops[shop]
 
-    if closed and not shopCfg.blip.show.closed then
+    if (closed and not shopCfg.blip.show.closed) or (not shopCfg.blip.show.open) then
         if Config.shops[shop].Blip then
             RemoveBlip(Config.shops[shop].Blip)
             Config.shops[shop].Blip = nil
@@ -173,7 +175,7 @@ function AddNPC(shop)
         local modelName = shopCfg.npc.model
         local model = joaat(modelName)
         LoadModel(model, modelName)
-        shopCfg.NPC = CreatePed(model, shopCfg.npc.coords, shopCfg.npc.heading, false, false, false, false)
+        shopCfg.NPC = CreatePed(model, shopCfg.npc.coords.x, shopCfg.npc.coords.y, shopCfg.npc.coords.z, shopCfg.npc.heading, false, false, false, false)
         Citizen.InvokeNative(0x283978A15512B2FE, shopCfg.NPC, true) -- SetRandomOutfitVariation
         SetEntityCanBeDamaged(shopCfg.NPC, false)
         SetEntityInvincible(shopCfg.NPC, true)
@@ -195,7 +197,7 @@ function LoadModel(model, modelName)
     if not IsModelValid(model) then
         return print('Invalid model:', modelName)
     end
-    RequestModel(model)
+    RequestModel(model, false)
     while not HasModelLoaded(model) do
         Wait(10)
     end
