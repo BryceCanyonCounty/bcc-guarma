@@ -18,6 +18,18 @@ CreateThread(function()
 
         for shop, shopCfg in pairs(Config.shops) do
             local distance = #(playerCoords - shopCfg.npc.coords)
+            local currency, ticketCost = nil, nil
+
+            if distance <= (shopCfg.shop.distance + 5) then
+                currency = shopCfg.price.currency
+                if currency == 1 then
+                    ticketCost = '$' .. tostring(shopCfg.price.amount)
+                elseif currency == 2 then
+                    ticketCost = tostring(shopCfg.price.amount) .. ' Gold'
+                elseif currency == 3 then
+                    ticketCost = shopCfg.price.item.label .. ' x ' .. tostring(shopCfg.price.amount)
+                end
+            end
 
             -- Shop Closed
             if (shopCfg.shop.hours.active and hour >= shopCfg.shop.hours.close) or (shopCfg.shop.hours.active and hour < shopCfg.shop.hours.open) then
@@ -28,7 +40,7 @@ CreateThread(function()
                     PromptSetActiveGroupThisFrame(PromptGroup, CreateVarString(10, 'LITERAL_STRING', shopCfg.shop.name .. _U('hours') ..
                     shopCfg.shop.hours.open .. _U('to') .. shopCfg.shop.hours.close .. _U('hundred')))
                     PromptSetEnabled(BuyPrompt, false)
-                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. tonumber(shopCfg.travel.buyPrice)))
+                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. ticketCost))
                     PromptSetEnabled(TravelPrompt, false)
                 end
 
@@ -46,7 +58,7 @@ CreateThread(function()
                     sleep = 0
                     PromptSetActiveGroupThisFrame(PromptGroup, CreateVarString(10, 'LITERAL_STRING', shopCfg.shop.prompt))
                     PromptSetEnabled(BuyPrompt, true)
-                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. tonumber(shopCfg.travel.buyPrice)))
+                    PromptSetText(BuyPrompt, CreateVarString(10, 'LITERAL_STRING', _U('buyPrompt') .. ticketCost))
                     PromptSetEnabled(TravelPrompt, true)
 
                     if Citizen.InvokeNative(0xC92AC953F0A982AE, BuyPrompt) then -- PromptHasStandardModeCompleted
@@ -54,7 +66,7 @@ CreateThread(function()
                             CheckPlayerJob(shop)
                             if not HasJob then goto END end
                         end
-                        TriggerServerEvent('bcc-guarma:BuyTicket', shopCfg.travel)
+                        TriggerServerEvent('bcc-guarma:BuyTicket', shop)
 
                     elseif Citizen.InvokeNative(0xC92AC953F0A982AE, TravelPrompt) then -- PromptHasStandardModeCompleted
                         if shopCfg.shop.jobsEnabled then
