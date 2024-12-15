@@ -6,6 +6,7 @@ When you're ready to explore, head to the island and discover its many wonders. 
 
 #### Features
 - Boat tickets are avilable in both Saint Denis and Guarma
+- Ticket price can be set using cash, gold or items
 - Tickets will be added to your inventory and can be used immediately or at a later time
 - You can carry up to 4 tickets at a time (could make a nice gift for a friend)
 - Port hours may be set individually for each port or disabled to allow the port to remain open
