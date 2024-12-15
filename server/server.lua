@@ -1,21 +1,44 @@
 local Core = exports.vorp_core:GetCore()
 
-RegisterServerEvent('bcc-guarma:BuyTicket', function(travel)
+RegisterServerEvent('bcc-guarma:BuyTicket', function(shop)
     local src = source
     local user = Core.getUser(src)
     if not user then return end
     local character = user.getUsedCharacter
-    local buyPrice = travel.buyPrice
+    local shopCfg = Config.shops[shop]
+    local currency = shopCfg.price.currency
+    local amount = shopCfg.price.amount
+
     local canCarry = exports.vorp_inventory:canCarryItem(src, 'boat_ticket', 1)
     if not canCarry then
         Core.NotifyRightTip(src, _U('maxTickets'), 4000)
         return
     end
-    if character.money < buyPrice then
-        Core.NotifyRightTip(src, _U('shortCash'), 4000)
-        return
+
+    if currency == 1 then
+        if character.money < amount then
+            Core.NotifyRightTip(src, _U('shortCash'), 4000)
+            return
+        end
+        character.removeCurrency(0, amount)
+
+    elseif currency == 2 then
+        if character.gold < amount then
+            Core.NotifyRightTip(src, _U('shortGold'), 4000)
+            return
+        end
+        character.removeCurrency(1, amount)
+
+    elseif currency == 3 then
+        local item = shopCfg.price.item.name
+        local itemCount = exports.vorp_inventory:getItemCount(src, nil, item)
+        if itemCount < amount then
+            Core.NotifyRightTip(src, _U('shortItem'), 4000)
+            return
+        end
+        exports.vorp_inventory:subItem(src, item, amount)
     end
-    character.removeCurrency(0, buyPrice)
+
     exports.vorp_inventory:addItem(src, 'boat_ticket', 1)
     Core.NotifyRightTip(src, _U('boughtTicket'), 4000)
 end)
