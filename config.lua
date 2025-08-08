@@ -3,7 +3,7 @@ Config = {}
 Config.defaultlang = 'en_lang'
 -----------------------------------------------------
 
-Config.devMode.active = false -- Enable Dev Mode for Debugging / Do Not Use in Production
+Config.devMode = false -- Enable Dev Mode for Debugging / Do Not Use in Production
 -----------------------------------------------------
 
 Config.keys = {
