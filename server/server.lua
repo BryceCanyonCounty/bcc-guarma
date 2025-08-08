@@ -1,4 +1,5 @@
 local Core = exports.vorp_core:GetCore()
+local BccUtils = exports['bcc-utils'].initiate()
 
 RegisterServerEvent('bcc-guarma:BuyTicket', function(shop)
     local src = source
@@ -85,3 +86,5 @@ function CheckPlayerJob(charJob, jobGrade, shop)
         end
     end
 end
+
+BccUtils.Versioner.checkFile(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-guarma')
