@@ -1,7 +1,7 @@
 local Core = exports.vorp_core:GetCore()
 local BccUtils = exports['bcc-utils'].initiate()
 
-local DevModeActive = Config.devMode.active
+local DevModeActive = Config.devMode
 
 local function DebugPrint(message)
     if DevModeActive then
