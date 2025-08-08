@@ -3,6 +3,9 @@ Config = {}
 Config.defaultlang = 'en_lang'
 -----------------------------------------------------
 
+Config.devMode.active = false -- Enable Dev Mode for Debugging / Do Not Use in Production
+-----------------------------------------------------
+
 Config.keys = {
     buy    = 0xC7B5340A, --[Enter]
     travel = 0x760A9C6F  --[G]
