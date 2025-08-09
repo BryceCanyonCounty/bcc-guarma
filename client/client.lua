@@ -6,13 +6,32 @@ local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 local HasJob = false
 local GuarmaMode = false
 
+local function isShopClosed(shopCfg)
+    local hour = GetClockHours()
+    local hoursActive = shopCfg.shop.hours.active
+
+    if not hoursActive then
+        return false
+    end
+
+    local openHour = shopCfg.shop.hours.open
+    local closeHour = shopCfg.shop.hours.close
+
+    if openHour < closeHour then
+        -- Normal: shop opens and closes on the same day
+        return hour < openHour or hour >= closeHour
+    else
+        -- Overnight: shop closes on the next day
+        return hour < openHour and hour >= closeHour
+    end
+end
+
 CreateThread(function()
     StartPrompts()
     while true do
         local playerPed = PlayerPedId()
         local playerCoords = GetEntityCoords(playerPed)
         local sleep = 1000
-        local hour = GetClockHours()
 
         if IsEntityDead(playerPed) then goto END end
 
@@ -32,7 +51,7 @@ CreateThread(function()
             end
 
             -- Shop Closed
-            if (shopCfg.shop.hours.active and hour >= shopCfg.shop.hours.close) or (shopCfg.shop.hours.active and hour < shopCfg.shop.hours.open) then
+            if isShopClosed(shopCfg) then
                 ManageBlip(shop, true)
                 RemoveNPC(shop)
                 if distance <= shopCfg.shop.distance then
@@ -172,7 +191,7 @@ function ManageBlip(shop, closed)
     if not Config.shops[shop].Blip then
         shopCfg.Blip = Citizen.InvokeNative(0x554d9d53f696d002, 1664425300, shopCfg.npc.coords) -- BlipAddForCoords
         SetBlipSprite(shopCfg.Blip, shopCfg.blip.sprite, true)
-        Citizen.InvokeNative(0x9CB1A1623062F402, shopCfg.Blip, shopCfg.blip.name) -- SetBlipNameFromPlayerString
+        Citizen.InvokeNative(0x9CB1A1623062F402, shopCfg.Blip, shopCfg.blip.name) -- SetBlipName
     end
 
     local color = shopCfg.blip.color.open

@@ -10,7 +10,6 @@ client_scripts {
 }
 
 server_scripts {
-    'server/versioncheck.lua',
     'server/server.lua'
 }
 
@@ -20,4 +19,4 @@ shared_scripts {
     'languages/*.lua'
 }
 
-version '1.2.0'
+version '1.2.1'
