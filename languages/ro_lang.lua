@@ -11,5 +11,5 @@ Locales["ro_lang"] = {
     boughtTicket = "Multumim pentru achizitie!",
     noTicket = "Ai nevoie de un bilet pentru a te imbarca pe nava",
     traveling = "Calatoresti catre ",
-    maxTickets = "Poti purta doar ~o~4~q~ bilete"
+    maxTickets = "You can't carry any more tickets",
 }

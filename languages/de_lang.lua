@@ -11,5 +11,5 @@ Locales["de_lang"] = {
     boughtTicket = "Danke für den Kauf!",
     noTicket = "Du brauchst ein Ticket, um das Boot zu betreten",
     traveling = "Reise nach ",
-    maxTickets = "Du kannst nur ~o~4~q~ Tickets bei dir haben"
+    maxTickets = "You can't carry any more tickets",
 }
