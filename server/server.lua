@@ -2,7 +2,6 @@ local Core = exports.vorp_core:GetCore()
 local BccUtils = exports['bcc-utils'].initiate()
 
 local DevModeActive = Config.devMode
-
 local function DebugPrint(message)
     if DevModeActive then
         print('^1[DEV MODE] ^4' .. message)
@@ -19,17 +18,20 @@ RegisterNetEvent('bcc-guarma:BuyTicket', function(shop)
     end
 
     local character = user.getUsedCharacter
-    local shopCfg = Config.shops[shop]
+    local shopCfg = Shops[shop]
     local currency = shopCfg.price.currency
     local amount = shopCfg.price.amount
+    local ticket = Config.ticket.name
+    local maxTickets = Config.ticket.quantity
 
-    DebugPrint(string.format("Attempting to buy ticket from shop: %s with currency: %s", shop, currency))
-
-    if not exports.vorp_inventory:canCarryItem(src, 'boat_ticket', 1) then
-        DebugPrint('Cannot carry more tickets, max limit reached.')
+    local ticketCount = exports.vorp_inventory:getItemCount(src, nil, ticket)
+    if ticketCount >= maxTickets or not exports.vorp_inventory:canCarryItem(src, ticket, 1) then
+        DebugPrint('User already has maximum tickets.')
         Core.NotifyRightTip(src, _U('maxTickets'), 4000)
         return
     end
+
+    DebugPrint(string.format("Attempting to buy ticket from shop: %s with currency: %s", shop, currency))
 
     local paymentSuccess = false
 
@@ -59,7 +61,7 @@ RegisterNetEvent('bcc-guarma:BuyTicket', function(shop)
 
     if paymentSuccess then
         DebugPrint('Payment successful, giving ticket.')
-        exports.vorp_inventory:addItem(src, 'boat_ticket', 1)
+        exports.vorp_inventory:addItem(src, ticket, 1)
         Core.NotifyRightTip(src, _U('boughtTicket'), 4000)
     else
         local notification = currency == 1 and _U('shortCash') or (currency == 2 and _U('shortGold') or _U('shortItem'))
@@ -77,16 +79,15 @@ Core.Callback.Register('bcc-guarma:CheckTicket', function(source, cb)
         return cb(false)
     end
 
-    local ticket = exports.vorp_inventory:getItem(src, 'boat_ticket')
-    if not ticket then
+    local ticket = Config.ticket.name
+    if not exports.vorp_inventory:getItem(src, ticket) then
         DebugPrint('No boat ticket found in inventory.')
         Core.NotifyRightTip(src, _U('noTicket'), 4000)
-        cb(false)
-        return
+        return cb(false)
     end
 
     DebugPrint('Removing one boat ticket from inventory.')
-    exports.vorp_inventory:subItem(src, 'boat_ticket', 1)
+    exports.vorp_inventory:subItem(src, ticket, 1)
     cb(true)
 end)
 
@@ -116,7 +117,7 @@ Core.Callback.Register('bcc-guarma:CheckJob', function(source, cb, shop)
 end)
 
 function CheckPlayerJob(charJob, jobGrade, shop)
-    local jobs = Config.shops[shop].shop.jobs
+    local jobs = Shops[shop].shop.jobs
     for _, job in ipairs(jobs) do
         if charJob == job.name and jobGrade >= job.grade then
             return true

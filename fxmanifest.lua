@@ -14,9 +14,9 @@ server_scripts {
 }
 
 shared_scripts {
-    'config.lua',
+    'configs/*.lua',
     'locale.lua',
     'languages/*.lua'
 }
 
-version '1.2.1'
+version '1.2.2'
