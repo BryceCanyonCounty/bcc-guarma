@@ -3,7 +3,12 @@ Config = {
     defaultlang = 'en_lang',
     -----------------------------------------------------
 
-    devMode = false, -- Enable Dev Mode for Debugging / Do Not Use in Production
+    devMode = {
+        active = false, -- Enable Dev Mode for Debugging / Do Not Use in Production
+    },
+    -----------------------------------------------------
+
+    autoSeedDatabase = true, -- Automatically seed items to database on resource start
     -----------------------------------------------------
 
     keys = {
@@ -14,7 +19,7 @@ Config = {
 
     ticket = {
         name = 'boat_ticket', -- Boat Ticket Item Name in Database
-        quantity = 4          -- Maximum Number of Tickets Player Can Carry 1-max (max number based on database item limit)
+        quantity = 4          -- Maximum Number of Tickets Player Can Carry / Range: 1-max (max number based on database item limit)
     },
     -----------------------------------------------------
 
