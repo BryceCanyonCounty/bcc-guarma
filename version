@@ -1,3 +1,18 @@
+<2.0.0>
+Major System Overhaul - BREAKING CHANGES:
+
+IMPORTANT: Update your configuration files!
+- Configuration structure has changed (Shops vs Guarma separated)
+- FeatherMenu dependency now required
+
+New Features:
+- Multi-destination travel system with FeatherMenu integration
+- Enhanced UX: Browse destinations without tickets, validate only on travel
+- Item consumption control (remove = true/false for membership cards)
+- Automatic database system with migration and seeding
+- Performance optimizations with pre-calculated data
+- Enhanced security with comprehensive input validation
+
 <1.2.2>
 Added config settings for ticket item and quantity
 

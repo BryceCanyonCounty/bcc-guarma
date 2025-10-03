@@ -1,6 +1,7 @@
 Locales["en_lang"] = {
     buyPrompt = "Ticket Cost: ",
     travelPrompt = "Board Ship",
+    openTravelMenu = "Open Travel Menu",
     to = ":00~q~ to ~o~",
     hundred = ":00",
     hours = " is open from ~o~",
@@ -12,4 +13,14 @@ Locales["en_lang"] = {
     noTicket = "You need a ticket to board the ship",
     traveling = "Traveling to ",
     maxTickets = "You can't carry any more tickets",
+    travelMenuTitle = "Choose Your Destination",
+    cancelTravel = "Cancel Travel",
+    close = "Close",
+    travelTime = "Travel Time",
+    second = "second",
+    seconds = "seconds",
+    minute = "minute",
+    minutes = "minutes",
+    startTravel = "Start Travel",
+    goBack = "Go Back",
 }

@@ -5,18 +5,21 @@ game 'rdr3'
 lua54 'yes'
 author 'BCC Team'
 
-client_scripts {
-    'client/client.lua'
-}
-
-server_scripts {
-    'server/server.lua'
-}
-
 shared_scripts {
     'configs/*.lua',
+    'debug_init.lua',
     'locale.lua',
     'languages/*.lua'
 }
 
-version '1.2.2'
+client_scripts {
+    'client/client.lua',
+    'client/menu.lua'
+}
+
+server_scripts {
+    'server/database.lua',
+    'server/server.lua'
+}
+
+version '2.0.0'
